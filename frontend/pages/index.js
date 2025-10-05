@@ -1,61 +1,37 @@
-// Main page for the OpenBD frontend
+'use client';
 
-import { useState } from 'react';
-// import { MDXProvider } from '@mdx-js/react';
-// import StepFlow from '../components/ai-elements/StepFlow';
-// import ReasoningPanel from '../components/ai-elements/ReasoningPanel';
-// import BanglaExplain from '../components/ai-elements/BanglaExplain';
-// import Quiz from '../components/ai-elements/Quiz';
+import { useChat } from '@ai-sdk/react';
+import {
+  Conversation,
+  ConversationContent,
+  ConversationHeader,
+} from '@/components/ai-elements/conversation';
+import { Message } from '@/components/ai-elements/message';
+import { PromptInput } from '@/components/ai-elements/prompt-input';
 
-// const components = {
-//   StepFlow,
-//   ReasoningPanel,
-//   BanglaExplain,
-//   Quiz,
-// };
-
-export default function Home() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-
-    const newMessages = [...messages, { role: 'user', content: input }];
-    setMessages(newMessages);
-    setInput('');
-
-    const response = await fetch('http://localhost:3001/api/v1/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        version: 'beta',
-        messages: newMessages,
-      }),
-    });
-
-    const data = await response.json();
-    setMessages([...newMessages, { role: 'assistant', content: data.answer }]);
-  };
+export default function Chat() {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: '/api/chat',
+  });
 
   return (
-    <div>
-      <h1>OpenBD Chat</h1>
-      <div>
-        {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.role}`}>
-            {/* This is where MDX rendering would happen */}
-            <p>{msg.content}</p>
-          </div>
+    <Conversation>
+      <ConversationHeader>
+        <h1>OpenBD Chat</h1>
+      </ConversationHeader>
+      <ConversationContent>
+        {messages.map((m, i) => (
+          <Message key={i} from={m.role}>
+            {m.content}
+          </Message>
         ))}
-      </div>
-      <input
-        type="text"
+      </ConversationContent>
+      <PromptInput
         value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+        onValueChange={handleInputChange}
+        onSubmit={handleSubmit}
+        placeholder="Type a message..."
       />
-      <button onClick={sendMessage}>Send</button>
-    </div>
+    </Conversation>
   );
 }
