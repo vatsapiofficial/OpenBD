@@ -1,15 +1,15 @@
-import { StreamingTextResponse, streamText } from 'ai';
 import { google } from '@ai-sdk/google';
+import { streamText, UIMessage, convertToModelMessages } from 'ai';
 
-export const runtime = 'edge';
+export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages }: { messages: UIMessage[] } = await req.json();
 
   const result = await streamText({
-    model: google('models/gemini-pro'),
-    messages,
+    model: google('gemini-2.5-flash'),
+    messages: convertToModelMessages(messages),
   });
 
-  return result.toAIStreamResponse();
+  return result.toUIMessageStreamResponse();
 }

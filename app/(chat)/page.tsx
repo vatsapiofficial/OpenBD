@@ -1,27 +1,34 @@
 'use client';
+import { useChat } from '@ai-sdk/react';
+import { useState } from 'react';
 
-import { useOpenBDChat } from '@/hooks/use-openbd-chat';
-import { Conversation } from '@/components/chat/Conversation';
-import { Message } from '@/components/chat/Message';
-import { PromptInput } from '@/components/chat/PromptInput';
-import { Response } from '@/components/chat/Response';
-import { ToolOutput } from '@/components/chat/ToolOutput';
-
-export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit } = useOpenBDChat();
+export default function Chat() {
+  const [input, setInput] = useState('');
+  const { messages, sendMessage } = useChat({ api: '/api/openbd' });
 
   return (
-    <Conversation>
-      {messages.map((m, i) => (
-        <Message key={i} from={m.role}>
+    <div className="flex flex-col max-w-md mx-auto py-24">
+      {messages.map(m => (
+        <div key={m.id}>
+          {m.role === 'user' ? 'You' : 'Gemini'}:{' '}
           {m.content}
-        </Message>
+        </div>
       ))}
-      <PromptInput
-        value={input}
-        onValueChange={handleInputChange}
-        onSubmit={handleSubmit}
-      />
-    </Conversation>
+
+      <form
+        onSubmit={e => {
+          e.preventDefault();
+          sendMessage({ role: 'user', content: input });
+          setInput('');
+        }}
+      >
+        <input
+          className="border p-2 w-full rounded"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          placeholder="Say something..."
+        />
+      </form>
+    </div>
   );
 }
