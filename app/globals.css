@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-background text-foreground;
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Tiro Bangla', serif;
+}
